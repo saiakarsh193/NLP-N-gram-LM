@@ -1,0 +1,55 @@
+NLP || Dan Jurafsky || Stanford University
+
+Lecture: 1 
+Title: NLP Course Introduction
+Link: https://www.youtube.com/watch?v=oWsMIW-5xUc&list=PLLssT5z_DsK8HbD2sPcUIDfQ7zmBarMYv
+Date: 22 January, 2022 (Sat)
+
+
+Applications of Language Technology:
+-> Mostly solved:
+* Spam detection
+	: Lets go to Agra! (NOT SPAM)
+	: Buy VIAGRA (SPAM)
+* Part-of-speech (POS) tagging
+	: Colourless green ideas sleep furiously
+	     ADJ      ADJ  NOUN  VERB     ADV
+* Named entity recognition (NER)
+	: Einstein met with UN officials in Princeton
+	   PERSON          ORG                LOC
+
+-> Making good progress:
+* Sentiment analysis
+	: Best roast chicken in San Francisco! (Thumbs up)
+	: The waiter ignored us for 20 minutes (Thumbs down)
+* Coreference resolution
+* Word sense disambiguation (WSD)
+	: Mouse can be an animal or an electronic device.
+* Parsing <creating the phrase structure or some other dependency tree structure>
+* Machine Translation (MT)
+* Information Extraction (IE) <Extracting for example info from a mail and creating a calender event)
+
+-> Still really hard:
+* Question answering (QA) <answering really complicated human level questions for maybe a search>
+	: How effective is ibuprofen in reducing fever in patients with acute febrile illness?
+* Paraphrase <restatement with different words but no loss in meaning>
+* Summarization <creating a summary from a context>
+* Dialog <highest level problem, where there is human-human level interaction with a model>
+
+Problems in NPL:
+* Ambiguity makes NLP hard <Not only WSD but also the structure ambiguity makes it hard for the parsing>
+	: Red tape holds up new bridges
+* Non standard English <Usage of hash tags and informal english in social media>
+* Segmentation issues
+	: the New York-New Haven Railroad
+	  [the] [New] [York-New] [Haven] [Railroad]
+	  [the] [New York] - [Haven] [Railroad]
+* Idioms
+* Neologisms <new words created, trend words, words created due to the digital and social age>
+	: Unfriend
+	: Retweet
+* World knowledge
+	: Mary and Sue are sisters.
+	: Mary and Sue are mothers.
+* Tricky entity names <sometimes links and titles are part of the text, making it harder to separate and tag>
+	: Where is A Bug's Life playing...

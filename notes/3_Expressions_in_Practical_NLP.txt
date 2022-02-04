@@ -1,0 +1,8 @@
+NLP || Dan Jurafsky || Stanford University
+
+Lecture: 3 
+Title: Expressions in Practical NLP
+Link: https://www.youtube.com/watch?v=sUNEGBuRWzU&list=PLLssT5z_DsK8HbD2sPcUIDfQ7zmBarMYv&index=3 
+Date: 22 January, 2022 (Sat)
+
+

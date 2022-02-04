@@ -1,0 +1,62 @@
+NLP || Dan Jurafsky || Stanford University
+
+Lecture: 4 
+Title: Word Tokenization
+Link: https://www.youtube.com/watch?v=pEwBjcYdcKw&list=PLLssT5z_DsK8HbD2sPcUIDfQ7zmBarMYv&index=4 
+Date: 22 January, 2022 (Sat)
+
+
+-> Word Tokenization:
+	* Segmenting/tokenizing words in running text
+	* Normalizing word formats
+	* Segmenting sentences in running text
+
+-> : I do uh main- mainly business data processing
+	Filled pauses: uh
+	Fragments: main-
+
+-> Lemma: Same stem, POS, rough word sense
+	: cat and cats belong to the same lemma
+
+-> Wordform: the full inflected surface form
+	: cat and cats are different wordforms
+
+-> Type: an element of the vocabulary
+
+-> Token: an instance of that type in running text
+
+-> Notation:
+	N	Number of tokens
+	V	Vocabulary (set of types), (cardinality |V| is the size of the vocabulary)
+
+-> Church and Gale (1990): |V| > O(N^1/2)
+
+-> Issues in Tokenization:
+	: Finland's capital		-> Finland, Finlands, Finland's ?
+	: what're, I'm, isn't		-> what are, I am, is not
+	: Hewlett-Packard		-> Hewlett Packard ?
+	: Lowercase			-> lower-case, lowercase, lower case ?
+	: San Francisco			-> one or two tokens ?
+	: m.p.h, Ph.D.			-> ??
+
+-> Language issues:
+* Tokenization in French
+	: L'ensemble			-> L, L', Le ?
+* German noun compounds are not segmented, hence it requires a compound splitter.
+* Chinese and Japanese have no spaces between words.
+* Japanese uses multiple scripts (Hiragana, Katakana, Kanji, Romanji)
+
+-> Word Tokenization in Chinese (Word Segmentation):
+We can use an algorithm called Maximum Matching (Greedy) but it works for Chinese but not English (because the average word length in Chinese is 2.4)
+
+-> Maximum Matching:
+* Start a pointer at the beginning of the string.
+* Find the longest word in dictionary that matches the string starting at pointer.
+* Move the pointer over the word in string.
+* Repeat the second step
+
+This does not work for English
+	: Thetabledownthere
+	  The table down there
+	  Theta bled own there
+

@@ -1,0 +1,58 @@
+NLP || Dan Jurafsky || Stanford University
+
+Lecture: 2 
+Title: Regular Expressions
+Link: https://www.youtube.com/watch?v=EyzTQ0OKeNw&list=PLLssT5z_DsK8HbD2sPcUIDfQ7zmBarMYv&index=2 
+Date: 22 January, 2022 (Sat)
+
+
+-> Disjunctions []:
+	Pattern				-> Matches
+	[wW]oodchuck			-> Woodchuck, woodchuck
+	[1234567890]			-> Any digit
+
+-> Ranges [A-Z]:
+	[A-Z]				-> An upper case letter
+	[a-z]				-> A lower case letter
+	[0-9]				-> A single digit
+	[A-Za-z]			-> A letter
+
+-> Negations [^]:
+	[^Ss]				-> Neither 'S' or 's'
+	[^A-Z]				-> Not an upper case letter
+	[^e^]				-> Neither 'e' or '^'
+
+-> Pipe |:
+	yours|mine			-> yours, mine
+	a|b|c				-> same as [abc]
+	[gG]roundhog|[Ww]oodchuck	-> groundhog, Groundhog, Woodchuck, woodchuck
+
+-> Special characters ? * + . :
+ ? (Optional character)
+	colou?r				-> color, colour
+ * (0 or more previous char)
+	oo*h!				-> oh!, ooh!, oooh!
+ + (1 or more previous char)
+	oo+h!				-> ooh!, oooh!, ooooh!
+ . (wildcard: any character)
+	beg.n				-> begin, beg3n
+ \ (escape character: used for escaping special characters)
+	.				-> Any character
+	\.				-> .
+
+Kleene Operators (*, +) named after Stephen C Kleene.
+
+-> Anchors ^ $ :
+ ^ (Matches the beginning of the line
+	^[A-Z]				-> <P>alo Alto
+ $ (Matches the end of the line
+	\.$				-> The end<.>
+	.$				-> The end<?>, The end<!>
+
+-> Errors:
+* False Positives (Type I): Matching strings that we should not have matched
+* False Negatives (Type II): Matching strings that we should have matched
+
+Reducing error rate has two antagonistic efforts
+* Increasing accuracy or precision (minimizing false positives)
+* Increasing recall or coverage (minimizing false negatives)

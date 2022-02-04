@@ -1,0 +1,10 @@
+NLP || Dan Jurafsky || Stanford University
+
+Lecture: 6
+Title: Sentence Segmentation
+Link: https://www.youtube.com/watch?v=FFsya-nq2Go&list=PLLssT5z_DsK8HbD2sPcUIDfQ7zmBarMYv&index=6
+Date: 29 January, 2022 (Sat)
+
+
+-> Segmentation:
+

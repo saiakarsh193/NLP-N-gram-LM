@@ -1,0 +1,40 @@
+NLP || Dan Jurafsky || Stanford University
+
+Lecture: 5 
+Title: Word Normalization and Stemming
+Link: https://www.youtube.com/watch?v=3_0rQjEgEy8&list=PLLssT5z_DsK8HbD2sPcUIDfQ7zmBarMYv&index=5 
+Date: 22 January, 2022 (Sat)
+
+
+-> Normalization: 
+   * Information Retrieval: indexed text and the query terms must have the same form
+   	U.S.A			-> USA
+   * Implicitly define equivalence classes of terms
+   * Alternatively, asymmetric expansion
+   * Case folding:
+     Reduce all letters to lower case
+     Exceptions:
+	: General Motors, Fed vs fed, SAIL vs sail
+     For sentiment analysis, MT, IE case is helpful.
+
+-> Lemmatization:
+   Reduce inflections or variant forms to base form
+	: am, are, is			-> be
+	: car, cars, car's, cars'	-> car
+	: the boy's cars are different colors	-> the boy car be different color
+   Find the correct dictionary headword form
+
+-> Morphemes:
+   * Morphology: The study of morphemes
+   * Morphemes: The smallest meaningful units that make up words
+   * Types: 
+	Stems: The core meaning-bearing units
+	Affixes: Bits and pieces that adhere to stems (Often with grammatical functions).
+		: Cars		-> [Car] [s]
+				   STEM  AFFX
+
+-> Stemming:
+   * Reduce terms to their stems by removing the affixes in information retrieval.
+     : for example compressed and compression are both accepted as equivalent to compress.
+       for exampl  compress   and compress    ar  both accept   as equival    to compress.
+   * Porter Algorith: The most common English Stemmer (bunch of iterated series of simple rules)
