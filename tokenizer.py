@@ -25,7 +25,7 @@ def tokenize(text):
     punfun = lambda x: " " + x.group() + " " if x.group is not None else ""
     text = re.sub(r"((?=[^<>-])\W)", punfun, text, 0, re.MULTILINE)
 
-    return ['<START>'] + text.split()
+    return text.split()
 
 if __name__ == "__main__":
     print(tokenize("This is awesome!!! #party"))
