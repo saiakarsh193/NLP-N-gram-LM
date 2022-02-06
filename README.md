@@ -1,6 +1,7 @@
 # NLP N-gram Language Model  
 
 Implementing N-Gram Language Model for NLP Assignment 1.  
+Tokenization is done using custom regular expressions.  
 Smoothing is done using various methods like Laplace, Witten-Bell and Kneser-Ney.  
 
 ## Running the code  
@@ -18,7 +19,7 @@ It will give a prompt where you need to enter a sentence,
 ```bash
 input sentence: <sentence>
 ```  
-and it will give the probability of the sentence calculated using the ngram table made from the corpus and the smoothing technique.  
+and it will give the probability of the sentence calculated using the ngram table made from the corpus and the smoothing technique specified.  
 
 Uncomment this line to log the perplexity values for test and train set  
 ```python
@@ -27,7 +28,7 @@ Uncomment this line to log the perplexity values for test and train set
 ```  
 
 ## References  
-- [Dan Jurafsky](https://www.youtube.com/playlist?list=PLLssT5z_DsK8HbD2sPcUIDfQ7zmBarMYv)
-- [Stanford Docs](https://nlp.stanford.edu/~wcmac/papers/20050421-smoothing-tutorial.pdf)
+- [Dan Jurafsky and Chris Manning, Stanford](https://www.youtube.com/playlist?list=PLLssT5z_DsK8HbD2sPcUIDfQ7zmBarMYv)
+- [Stanford University](https://nlp.stanford.edu/~wcmac/papers/20050421-smoothing-tutorial.pdf)
 - [Heidelberg University](https://www.cl.uni-heidelberg.de/courses/ss15/smt/scribe6.pdf)
 - [Harvard University](https://www.microsoft.com/en-us/research/wp-content/uploads/2016/02/tr-10-98.pdf?from=https%3A%2F%2Fresearch.microsoft.com%2F%7Ejoshuago%2Ftr-10-98.pdf)
