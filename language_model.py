@@ -99,7 +99,7 @@ class LanguageModel():
                 return 0
         jbase = ' '.join(base)
         if(jbase in self.tmodel and word != "<TOTAL_COUNT>" and word != "<UNIQUE_COUNT>" and word in self.tmodel[jbase]):
-            blamb = self.tmodel[jbase]["<UNIQUE_COUNT>"] + (self.tmodel[jbase]["<UNIQUE_COUNT>"] + self.tmodel[jbase]["<TOTAL_COUNT>"])
+            blamb = self.tmodel[jbase]["<UNIQUE_COUNT>"] / (self.tmodel[jbase]["<UNIQUE_COUNT>"] + self.tmodel[jbase]["<TOTAL_COUNT>"])
             alamb = 1 - blamb
             return alamb * (self.tmodel[jbase][word] / self.tmodel[jbase]["<TOTAL_COUNT>"]) + blamb * self.witProbFunc(word, base[1:])
         else:
