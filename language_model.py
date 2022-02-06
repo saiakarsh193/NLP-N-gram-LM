@@ -9,7 +9,7 @@ class LanguageModel():
         self.smooth = self.checkSmoothType(smooth)
         self.rawdata = self.readFile(path)
         self.train_data, self.test_data = self.splitTrainTestandTokenize(1000, -1)
-        self.vocab, self.vocab_length = self.makeVocabulary()
+        self.vocab, self.vocab_length, self.vocab_length_total = self.makeVocabulary()
         self.train()
 
     def checkSmoothType(self, smooth):
@@ -40,8 +40,10 @@ class LanguageModel():
 
     def makeVocabulary(self):
         vocab = {}
+        t_cnt = 0
         for tokens in self.train_data:
             for token in tokens:
+                t_cnt += 1
                 if token in vocab:
                     vocab[token] += 1
                 else:
@@ -51,43 +53,63 @@ class LanguageModel():
             if(val == 1):
                 del vocab[key]
                 uk_cnt += 1
-        vocab['<UKN>'] = uk_cnt
-        return vocab, len(vocab.keys())
+        vocab['<UNKNOWN>'] = uk_cnt
+        return vocab, len(vocab.keys()), t_cnt
 
     def updateUnkSentence(self, tokens):
-        return [(token if token in self.vocab else '<UKN>') for token in tokens]
+        return [(token if token in self.vocab else '<UNKNOWN>') for token in tokens]
 
     def train(self):
         tmodel = {}
         for tokens in self.train_data:
             tokens = self.updateUnkSentence(tokens)
             temp = (['<START>'] * (self.ngram - 1)) + tokens
-            for i in range(self.ngram - 1, len(temp)):
-                base = ' '.join(temp[i - (self.ngram - 1): i])
-                word = temp[i]
-                if(base not in tmodel):
-                    tmodel[base] = {"<TOTAL_COUNT>": 0}
-                if(word != "<TOTAL_COUNT>"):
-                    if(word not in tmodel[base]):
-                        tmodel[base][word] = 0
-                    tmodel[base][word] += 1
-                    tmodel[base]["<TOTAL_COUNT>"] += 1
+            for n in range(1, self.ngram):
+                for i in range(self.ngram - 1, len(temp)):
+                    base = ' '.join(temp[i - n: i])
+                    word = temp[i]
+                    if(base not in tmodel):
+                        tmodel[base] = {"<TOTAL_COUNT>": 0}
+                    if(word != "<TOTAL_COUNT>"):
+                        if(word not in tmodel[base]):
+                            tmodel[base][word] = 0
+                        tmodel[base][word] += 1
+                        tmodel[base]["<TOTAL_COUNT>"] += 1
+        for key in tmodel.keys():
+            tmodel[key]["<UNIQUE_COUNT>"] = len(tmodel[key].keys()) - 1
         self.tmodel = tmodel
 
-    def getProb(self, word, base):
+    def lapProbFunc(self, word, base):
         if(base in self.tmodel):
             cbase = self.tmodel[base]["<TOTAL_COUNT>"]
         else:
             cbase = 0
-        if(word != "<TOTAL_COUNT>" and cbase > 0 and word in self.tmodel[base]):
+        if(word != "<TOTAL_COUNT>" and word != "<UNIQUE_COUNT>" and cbase > 0 and word in self.tmodel[base]):
             ctotal = self.tmodel[base][word]
         else:
             ctotal = 0
-        if(self.smooth == 'l'):
-            pw = (1 + ctotal) / (self.vocab_length + cbase)
-        else:
-            pw = 1
+        pw = (1 + ctotal) / (self.vocab_length + cbase)
         return pw
+
+    def witProbFunc(self, word, base):
+        if(len(base) == 0):
+            if(word in self.vocab):
+                return self.vocab[word] / self.vocab_length_total
+            else:
+                return 0
+        jbase = ' '.join(base)
+        if(jbase in self.tmodel and word != "<TOTAL_COUNT>" and word != "<UNIQUE_COUNT>" and word in self.tmodel[jbase]):
+            blamb = self.tmodel[jbase]["<UNIQUE_COUNT>"] + (self.tmodel[jbase]["<UNIQUE_COUNT>"] + self.tmodel[jbase]["<TOTAL_COUNT>"])
+            alamb = 1 - blamb
+            return alamb * (self.tmodel[jbase][word] / self.tmodel[jbase]["<TOTAL_COUNT>"]) + blamb * self.witProbFunc(word, base[1:])
+        else:
+            return self.witProbFunc(word, base[1:])
+
+    def getProb(self, word, base):
+        if(self.smooth == 'l'):
+            return self.lapProbFunc(word, ' '.join(base))
+        if(self.smooth == 'w'):
+            return self.witProbFunc(word, base)
 
     def getPerplexity(self, sentence):
         temp = self.updateUnkSentence(tokenize(sentence.strip()))
@@ -95,7 +117,7 @@ class LanguageModel():
         temp = (['<START>'] * (self.ngram - 1)) + temp
         ppw = 1
         for i in range(self.ngram - 1, len(temp)):
-            base = ' '.join(temp[i - (self.ngram - 1): i])
+            base = temp[i - (self.ngram - 1): i]
             word = temp[i]
             ppw *= self.getProb(word, base)
         try:
