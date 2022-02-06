@@ -1,6 +1,7 @@
 import sys
 import random
 import math
+import os
 from tokenizer import tokenize
 
 class LanguageModel():
@@ -8,7 +9,7 @@ class LanguageModel():
         self.ngram = ngram
         self.smooth = self.checkSmoothType(smooth)
         self.rawdata = self.readFile(path)
-        self.train_data, self.test_data = self.splitTrainTestandTokenize(1000, -1)
+        self.train_data, self.raw_train_data, self.raw_test_data = self.splitTrainTestandTokenize(1000, -1)
         self.vocab, self.vocab_length, self.vocab_length_total = self.makeVocabulary()
         self.train()
 
@@ -36,7 +37,7 @@ class LanguageModel():
         if(random_seed >= 0):
             random.seed(random_seed)
         random.shuffle(self.rawdata)
-        return self.tokenizeDataset(self.rawdata[test_count:]), self.rawdata[0:test_count]
+        return self.tokenizeDataset(self.rawdata[test_count:]), self.rawdata[test_count:], self.rawdata[0:test_count]
 
     def makeVocabulary(self):
         vocab = {}
@@ -108,7 +109,7 @@ class LanguageModel():
         if(self.smooth == 'w'):
             return self.witProbFunc(word, base)
 
-    def getPerplexity(self, sentence):
+    def getPerplexity(self, sentence, prob=False):
         temp = self.updateUnkSentence(tokenize(sentence.strip()))
         n = len(temp)
         temp = (['<START>'] * (self.ngram - 1)) + temp
@@ -117,25 +118,42 @@ class LanguageModel():
             base = temp[i - (self.ngram - 1): i]
             word = temp[i]
             ppw *= self.getProb(word, base)
-        try:
-            ppw = math.pow(ppw, -1/n)
-        except Exception as exception:
-            ppw = 1
+        if(not prob):
+            try:
+                ppw = math.pow(ppw, -1/n)
+            except Exception as exception:
+                ppw = 1
         return ppw
 
-    def test(self, path):
+    def log(self, value = ''):
+        roll = '2019111017'
+        if(not os.path.isdir('./logs')):
+            os.mkdir('./logs')
         tsum = 0
         tstr = ""
-        for sentence in self.test_data:
+        for sentence in self.raw_train_data:
             ppw = self.getPerplexity(sentence)
             tsum += ppw
             tstr += sentence[:-1] + "\t" + str(ppw) + "\n"
-        tsum = tsum / len(self.test_data)
-        with open(path, 'w') as f:
+        tsum = tsum / len(self.raw_train_data)
+        with open('logs/' + roll + '_LM' + value + '_train-perplexity.txt', 'w') as f:
+            f.write(str(tsum) + "\n" + tstr)
+        tsum = 0
+        tstr = ""
+        for sentence in self.raw_test_data:
+            ppw = self.getPerplexity(sentence)
+            tsum += ppw
+            tstr += sentence[:-1] + "\t" + str(ppw) + "\n"
+        tsum = tsum / len(self.raw_test_data)
+        with open('./logs/' + roll + '_LM' + value + '_test-perplexity.txt', 'w') as f:
             f.write(str(tsum) + "\n" + tstr)
 
 if(len(sys.argv) == 4):
     lm = LanguageModel(int(sys.argv[1]), sys.argv[2], sys.argv[3])
-    lm.test("output.txt")
+    # uncomment this line to log the perplexity values for train and test set
+    # lm.log("") # the parameter is LM id value for naming the file
+    while True:
+        tstr = input("input sentence: ")
+        print(lm.getPerplexity(tstr, prob=True))
 else:
     print("Invalid number of parameters")
