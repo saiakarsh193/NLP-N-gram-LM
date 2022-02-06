@@ -93,12 +93,9 @@ class LanguageModel():
 
     def witProbFunc(self, word, base):
         if(len(base) == 0):
-            if(word in self.vocab):
-                return self.vocab[word] / self.vocab_length_total
-            else:
-                return 0
+            return self.vocab[word] / self.vocab_length_total
         jbase = ' '.join(base)
-        if(jbase in self.tmodel and word != "<TOTAL_COUNT>" and word != "<UNIQUE_COUNT>" and word in self.tmodel[jbase]):
+        if(jbase in self.tmodel and word in self.tmodel[jbase]):
             blamb = self.tmodel[jbase]["<UNIQUE_COUNT>"] / (self.tmodel[jbase]["<UNIQUE_COUNT>"] + self.tmodel[jbase]["<TOTAL_COUNT>"])
             alamb = 1 - blamb
             return alamb * (self.tmodel[jbase][word] / self.tmodel[jbase]["<TOTAL_COUNT>"]) + blamb * self.witProbFunc(word, base[1:])
@@ -126,15 +123,19 @@ class LanguageModel():
             ppw = 1
         return ppw
 
-    def test(self):
+    def test(self, path):
         tsum = 0
+        tstr = ""
         for sentence in self.test_data:
-            # print(sentence, self.getPerplexity(sentence))
-            tsum += self.getPerplexity(sentence)
-        print(tsum / len(self.test_data))
+            ppw = self.getPerplexity(sentence)
+            tsum += ppw
+            tstr += sentence[:-1] + "\t" + str(ppw) + "\n"
+        tsum = tsum / len(self.test_data)
+        with open(path, 'w') as f:
+            f.write(str(tsum) + "\n" + tstr)
 
 if(len(sys.argv) == 4):
     lm = LanguageModel(int(sys.argv[1]), sys.argv[2], sys.argv[3])
-    lm.test()
+    lm.test("output.txt")
 else:
     print("Invalid number of parameters")
