@@ -62,6 +62,11 @@ class LanguageModel():
 
     def train(self):
         tmodel = {}
+        if(self.smooth == 'k'):
+            t_any_full = {}
+            t_any_par_any = {}
+            t_any_word = {}
+            t_any_any = {"<UNIQUE_COUNT>": 0}
         for tokens in self.train_data:
             tokens = self.updateUnkSentence(tokens)
             temp = (['<START>'] * (self.ngram - 1)) + tokens
@@ -76,9 +81,44 @@ class LanguageModel():
                             tmodel[base][word] = 0
                         tmodel[base][word] += 1
                         tmodel[base]["<TOTAL_COUNT>"] += 1
+                    if(self.smooth == 'k'):
+                        if(i - n - 1 >= 0):
+                            # *, i...n
+                            ta = temp[i - n - 1]
+                            tb = ' '.join(temp[i - n: i + 1])
+                            if(tb not in t_any_full):
+                                t_any_full[tb] = {"<UNIQUE_COUNT>": 0}
+                            if(ta not in t_any_full[tb]):
+                                t_any_full[tb]["<UNIQUE_COUNT>"] += 1
+                                t_any_full[tb][ta] = True
+                            # *, i...n-1, *
+                            tb = ' '.join(temp[i - n: i])
+                            ta = ta + ' ' + word
+                            if(tb not in t_any_par_any):
+                                t_any_par_any[tb] = {"<UNIQUE_COUNT>": 0}
+                            if(ta not in t_any_par_any[tb]):
+                                t_any_par_any[tb]["<UNIQUE_COUNT>"] += 1
+                                t_any_par_any[tb][ta] = True
+                        if(n == 1):
+                            # *, word
+                            if(word not in t_any_word):
+                                t_any_word[word] = {"<UNIQUE_COUNT>": 0}
+                            if(base not in t_any_word[word]):
+                                t_any_word[word]["<UNIQUE_COUNT>"] += 1
+                                t_any_word[word][base] = True
+                            # *, *
+                            ta = base + ' ' + word
+                            if(ta not in t_any_any):
+                                t_any_any["<UNIQUE_COUNT>"] += 1
+                                t_any_any[ta] = True
         for key in tmodel.keys():
             tmodel[key]["<UNIQUE_COUNT>"] = len(tmodel[key].keys()) - 1
         self.tmodel = tmodel
+        if(self.smooth == 'k'):
+            self.t_any_full = t_any_full
+            self.t_any_par_any = t_any_par_any
+            self.t_any_word = t_any_word
+            self.t_any_any = t_any_any
 
     def lapProbFunc(self, word, base):
         if(base in self.tmodel):
@@ -103,11 +143,41 @@ class LanguageModel():
         else:
             return self.witProbFunc(word, base[1:])
 
+    def kneProbFunc(self, word, base, high):
+        d = 0.75
+        if(len(base) == 0):
+            if(word in self.t_any_word):
+                return self.t_any_word[word]["<UNIQUE_COUNT>"] / self.t_any_any["<UNIQUE_COUNT>"]
+            else:
+                return 0
+        jbase = ' '.join(base)
+        if(high):
+            if(jbase in self.tmodel):
+                if(word in self.tmodel[jbase]):
+                    num = self.tmodel[jbase][word]
+                else:
+                    num = 0
+                return (max(num - d, 0) / self.tmodel[jbase]["<TOTAL_COUNT>"]) + (d * self.tmodel[jbase]["<UNIQUE_COUNT>"] * self.kneProbFunc(word, base[1:], False) / self.tmodel[jbase]["<TOTAL_COUNT>"])
+            else:
+                return self.kneProbFunc(word, base[1:], False)
+        else:
+            if(jbase in self.t_any_par_any):
+                nfull = jbase + ' ' + word
+                if(nfull in self.t_any_full):
+                    num = self.t_any_full[nfull]["<UNIQUE_COUNT>"]
+                else:
+                    num = 0
+                return (max(num - d, 0) / self.t_any_par_any[jbase]["<UNIQUE_COUNT>"]) + (d * self.tmodel[jbase]["<UNIQUE_COUNT>"] * self.kneProbFunc(word, base[1:], False) / self.t_any_par_any[jbase]["<UNIQUE_COUNT>"])
+            else:
+                return self.kneProbFunc(word, base[1:], False)
+
     def getProb(self, word, base):
         if(self.smooth == 'l'):
             return self.lapProbFunc(word, ' '.join(base))
         if(self.smooth == 'w'):
             return self.witProbFunc(word, base)
+        if(self.smooth == 'k'):
+            return self.kneProbFunc(word, base, True)
 
     def getPerplexity(self, sentence, prob=False):
         temp = self.updateUnkSentence(tokenize(sentence.strip()))
